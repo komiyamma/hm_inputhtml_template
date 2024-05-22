@@ -1,0 +1,2 @@
+# hm_inputhtml_template
+レンダリングペインを使った 複数の項目を持つInputの例
