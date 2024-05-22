@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ボタンクリックサンプル</title>
+</head>
+<body>
+１番目のパラメータ:<br>
+&nbsp;<input type="text" id="input_1"><br>
+<br>
+２番目のパラメータ:<br>
+&nbsp;<input type="text" id="input_2"><br>
+<br>
+&nbsp;<button id="button_1">OK</button><br>
+
+<script>
+    // ボタンを取得
+    const btn_1 = document.getElementById("button_1");
+    let idCallback=0;
+
+    // ボタンがクリックされた時の処理
+    btn_1.addEventListener("click", function() {
+        let message_obj = {
+            input1: input_1.value,
+            input2: input_2.value,
+        };
+        let json = JSON.stringify(message_obj);
+        window.chrome.webview.postMessage({funcid:idCallback, message:json});
+    });
+</script>
+</body>
+</html>

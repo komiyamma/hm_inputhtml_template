@@ -1,0 +1,68 @@
+﻿
+jsmode "WebView2";
+
+js {
+    debuginfo(2);
+    console.log(hidemaru.getJsMode() + "\r\n");
+
+    const absoluteUrl = new URL(currentmacrodirectory() + "\\" + "RenderInput.html").href;
+
+    const strTargetLabel = "RenderInputHtml";
+
+    const json_arg = {
+        target: strTargetLabel,
+        uri: absoluteUrl,
+        show: 1,
+        place: "leftside",
+    };
+
+    renderpanecommand(json_arg);
+
+    function checkComplete() {
+        let readyState = renderpanecommand({ target: strTargetLabel, get: "readyState" });
+        if (readyState == "complete") {
+            hidemaru.clearInterval(idInterval_RenderInputHtml);
+            onRenderPaneShown();
+        }
+    }
+
+    function onRenderPaneShown() {
+        let idCallback = hidemaru.getFunctionId(onInputHtmlButtonClick);
+        renderpanecommand({
+            target: strTargetLabel,
+            uri: 'javascript:idCallback=' + idCallback + ';',
+        });
+        renderpanecommand({
+            target: strTargetLabel,
+            focus: 1,
+        });
+    }
+
+    
+    function onInputHtmlButtonClick(json) {
+        renderpanecommand({
+            target: strTargetLabel,
+            show: 0,
+        });
+        strInputJson = json;
+        hidemaru.postExecMacroMemory( "js {onPostExecute()}" );
+    }
+
+    // 次のマクロ実行の際に見るのでletではなくvarにして、ライフサイクルを js { } 外に伸ばす必要がある。
+    // 他のjsを使った秀丸マクロと決して被らない「マクロ空間」にしておく必要がある。(よってtickcount空間という被らない空間に配置している)
+    var idInterval_RenderInputHtml;
+    if (typeof (idInterval_RenderInputHtml) != "undefined") {
+        hidemaru.clearInterval(idInterval_RenderInputHtml);
+    }
+    idInterval_RenderInputHtml = hidemaru.setInterval(checkComplete, 300);
+
+} // js
+
+
+jsmode "WebView2";
+
+js {
+    function onPostExecute() {
+         console.log(strInputJson);
+    }
+}
