@@ -32,13 +32,13 @@
             // window.alert("OK");
             // ボタンがクリックされた時の処理
             btn_1.addEventListener("click", function () {
-                // window.alert(idCallback);
+                window.alert(idCallback);
                 let message_obj = {
                     input_1: input_1.value,
                     input_2: input_2.value,
                 };
                 let json = JSON.stringify(message_obj);
-                // window.alert(json);
+                window.alert(json);
                 window.chrome.webview.postMessage({ funcid: idCallback, message: json });
             });
         }

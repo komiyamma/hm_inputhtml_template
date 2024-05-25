@@ -17,7 +17,7 @@
     <script>
         // ボタンを取得
         const btn_1 = document.getElementById("button_1");
-        window.alert(btn_1);
+        // window.alert(btn_1);
 
         let idCallback = 0;
 	    // 現在のURLを取得
@@ -27,9 +27,9 @@
 	    let strIDCallBack = params.get('strIDCallBack');
 	    idCallback = Number(strIDCallBack);
 
-        window.alert(idCallback);
+        // window.alert(idCallback);
         try {
-            window.alert("OK");
+            // window.alert("OK");
             // ボタンがクリックされた時の処理
             btn_1.addEventListener("click", function () {
                 window.alert(idCallback);
@@ -38,12 +38,12 @@
                     input_2: input_2.value,
                 };
                 let json = JSON.stringify(message_obj);
-                window.alert(json);
+                // window.alert(json);
                 window.chrome.webview.postMessage({ funcid: idCallback, message: json });
             });
         }
         catch (err) {
-            window.alert(err);
+            // window.alert(err);
         }
     </script>
 </body>
