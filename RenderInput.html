@@ -1,31 +1,51 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>ボタンクリックサンプル</title>
 </head>
+
 <body>
-１番目のパラメータ:<br>
-&nbsp;<input type="text" id="input_1"><br>
-<br>
-２番目のパラメータ:<br>
-&nbsp;<input type="text" id="input_2"><br>
-<br>
-&nbsp;<button id="button_1">OK</button><br>
+    １番目のパラメータ:<br>
+    &nbsp;<input type="text" id="input_1"><br>
+    <br>
+    ２番目のパラメータ:<br>
+    &nbsp;<input type="text" id="input_2"><br>
+    <br>
+    &nbsp;<button id="button_1">OK</button><br>
 
-<script>
-    // ボタンを取得
-    const btn_1 = document.getElementById("button_1");
-    let idCallback=0;
+    <script>
+        // ボタンを取得
+        const btn_1 = document.getElementById("button_1");
+        // window.alert(btn_1);
 
-    // ボタンがクリックされた時の処理
-    btn_1.addEventListener("click", function() {
-        let message_obj = {
-            input1: input_1.value,
-            input2: input_2.value,
-        };
-        let json = JSON.stringify(message_obj);
-        window.chrome.webview.postMessage({funcid:idCallback, message:json});
-    });
-</script>
+        let idCallback = 0;
+	    // 現在のURLを取得
+	    var url = new URL(window.location.href);
+       // パラメータを取得
+        var params = new URLSearchParams(url.search);
+	    let strIDCallBack = params.get('strIDCallBack');
+	    idCallback = Number(strIDCallBack);
+
+        // window.alert(idCallback);
+        try {
+            // window.alert("OK");
+            // ボタンがクリックされた時の処理
+            btn_1.addEventListener("click", function () {
+                // window.alert(idCallback);
+                let message_obj = {
+                    input_1: input_1.value,
+                    input_2: input_2.value,
+                };
+                let json = JSON.stringify(message_obj);
+                // window.alert(json);
+                window.chrome.webview.postMessage({ funcid: idCallback, message: json });
+            });
+        }
+        catch (err) {
+            // window.alert(err);
+        }
+    </script>
 </body>
+
 </html>
