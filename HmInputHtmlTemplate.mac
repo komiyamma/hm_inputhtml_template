@@ -7,9 +7,8 @@ js {
 debuginfo(2);
 console.log(hidemaru.getJsMode());
 
-if (typeof (idInterval_MyUITemplate) != "undefined") {
-    console.log("クリア");
-    hidemaru.clearInterval(idInterval_MyUITemplate);
+if (typeof(myUITemplate) != "undefined") {
+    myUITemplate._destructor();
 }
 
 class MyUITemplate { // ここのクラス名はマクロファイル名ごとに書き換える
@@ -19,6 +18,20 @@ class MyUITemplate { // ここのクラス名はマクロファイル名ごと�
 
         MyUITemplate.strTargetLabel = "RenderInputHtml";
         MyUITemplate.openRenderPane();
+        MyUITemplate.setInterval();
+    }
+
+    _destructor() {
+        MyUITemplate.clearInterval(MyUITemplate.idInterval);
+    }
+
+    static setInterval() {
+        MyUITemplate.idInterval = hidemaru.setInterval(MyUITemplate.tickCheckComplete, 300);
+    }
+
+    static clearInterval() {
+        console.log("クリア");
+        hidemaru.clearInterval(MyUITemplate.idInterval);
     }
 
     static outputAlert(err) {
@@ -27,6 +40,7 @@ class MyUITemplate { // ここのクラス名はマクロファイル名ごと�
     }
 
     static openRenderPane() {
+        try {
         let absoluteUrl = new URL(currentmacrodirectory() + "\\" + "RenderInput.html");
         let idCallBack = hidemaru.getFunctionId(MyUITemplate.onHtmlButtonClick);
         console.log(idCallBack + "\r\n");
@@ -45,14 +59,17 @@ class MyUITemplate { // ここのクラス名はマクロファイル名ごと�
         };
         
         renderpanecommand(json_arg);
+        } catch(err) {
+            MyUITemplate.outputAlert(err);
+        }
     }
 
-    static checkComplete() {
-        console.log("checkComplete");
+    static tickCheckComplete() {
+        console.log("tickCheckComplete");
         try {
-        let readyState = renderpanecommand({ target: "RenderInputHtml", get: "readyState" });
+        let readyState = renderpanecommand({ target: MyUITemplate.strTargetLabel, get: "readyState" });
         if (readyState == "complete") {
-            hidemaru.clearInterval(idInterval_MyUITemplate);
+            MyUITemplate.clearInterval();
             console.log("complete");
             MyUITemplate.onRenderPaneShown();
         }
@@ -64,44 +81,36 @@ class MyUITemplate { // ここのクラス名はマクロファイル名ごと�
     static onRenderPaneShown() {
         console.log("onRenderPaneShown");
         try {
-/*
+
         renderpanecommand({
-            target: "RenderInputHtml",
+            target: MyUITemplate.strTargetLabel,
             focus: 1,
         });
-*/
+
         } catch(err) {
             MyUITemplate.outputAlert(err);
         }
     }
 
-	static onHtmlButtonClick(json) {
-	    try {
-	        console.log("OK3");
-	        console.log(idInterval_MyUITemplate); 
-	        hidemaru.clearInterval(idInterval_MyUITemplate);
-	        renderpanecommand({
-	            target: "RenderInputHtml",
-	            show: 0,
-	        });
-	        console.log("OK4");
-	        console.log("OK5");
-	        let strInputJson = json;
-	        console.log(json);
-	        hidemaru.postExecMacroMemory( "js {onPostExecute()}" );
-	    } catch(err) {
-	        MyUITemplate.outputAlert(err);
-	    }
-	}
-
-
-
+    static onHtmlButtonClick(json) {
+        try {
+            MyUITemplate.clearInterval();
+            renderpanecommand({
+                target: MyUITemplate.strTargetLabel,
+                show: 0,
+            });
+            let strInputJson = json;
+            console.log(json);
+            hidemaru.postExecMacroMemory( "js {onPostExecute()}" );
+        } catch(err) {
+            MyUITemplate.outputAlert(err);
+        }
+    }
 }
 
 
 
 try {
-    idInterval_MyUITemplate = hidemaru.setInterval(MyUITemplate.checkComplete, 300);
     var myUITemplate = new MyUITemplate(); // let ではなく寿命が残るvarである必要がある。
 } catch(err) {
 }
