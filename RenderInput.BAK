@@ -20,7 +20,7 @@
 
         let idCallback = 0;
         // 現在のURLを取得
-        let url = new URL(window.location.href);
+        var url = new URL(window.location.href);
        // パラメータを取得
         let params = new URLSearchParams(url.search);
         let strIDCallBack = params.get('strIDCallBack');

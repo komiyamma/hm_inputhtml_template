@@ -108,7 +108,6 @@ try {
 
 } // js
 
-
 /* この２回目のjsmodeは 9.35までは許されない
 jsmode "WebView2";
 
