@@ -13,10 +13,11 @@ if (typeof(myUITemplate) != "undefined") {
 
 class MyUITemplate { // ここのクラス名はマクロファイル名ごとに書き換える
 
+    static strTargetLabel = "RenderInputHtml";
+
     constructor() {
         debuginfo(2);
 
-        MyUITemplate.strTargetLabel = "RenderInputHtml";
         MyUITemplate.openRenderPane();
         MyUITemplate.setInterval();
     }
@@ -111,8 +112,12 @@ class MyUITemplate { // ここのクラス名はマクロファイル名ごと�
 
 
 try {
-    var myUITemplate = new MyUITemplate(); // let ではなく寿命が残るvarである必要がある。
+    // let ではなく寿命が残るvarである必要がある。
+    var myUITemplate = new MyUITemplate();
 } catch(err) {
+    if (typeof(myUITemplate) != "undefined") {
+        myUITemplate._destructor();
+    }
 }
 
 } // js
