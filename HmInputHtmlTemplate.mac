@@ -20,6 +20,7 @@ class UITemplate { // ここのクラス名はマクロファイル名ごとに�
         UITemplate.strTargetLabel = "RenderInputHtml";
         UITemplate.openRenderPane();
         UITemplate.setInitInterval();
+        UITemplate.setUpdateInterval();
     }
 
     _destructor() {
