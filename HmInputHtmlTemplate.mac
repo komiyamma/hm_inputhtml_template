@@ -4,112 +4,144 @@
 jsmode "WebView2";
 
 js {
-
 debuginfo(2);
-console.log(hidemaru.getJsMode());
-if (typeof (myUITemplate) != "undefined") {
-    myUITemplate._destructor();
-}
-class MyUITemplate {
-    static strTargetLabel = "RenderInputHtml";
-    static idInterval;
+
+
+/// <reference path="../types/hm_jsmode.d.ts" />
+class UITemplate {
+    static strTargetLabel = "";
+    static idInitInterval;
+    static idUpdateInterval;
     constructor() {
-        MyUITemplate.openRenderPane();
-        MyUITemplate.setInterval();
+        UITemplate.strTargetLabel = "RenderInputHtml";
+        UITemplate.openRenderPane();
+        UITemplate.setInitInterval();
+        UITemplate.setUpdateInterval();
     }
     _destructor() {
-        MyUITemplate.clearInterval();
+        UITemplate.clearInitInterval();
+        UITemplate.clearUpdateInterval();
     }
-    static setInterval() {
-        MyUITemplate.idInterval = hidemaru.setInterval(MyUITemplate.checkCompleteRenderPane, 300);
+    static setInitInterval() {
+        UITemplate.idInitInterval = hidemaru.setInterval(UITemplate.checkCompleteRenderPane, 300);
     }
-    static clearInterval() {
-        console.log("クリア");
-        hidemaru.clearInterval(MyUITemplate.idInterval);
+    static clearInitInterval() {
+        hidemaru.clearInterval(UITemplate.idInitInterval);
     }
     static outputAlert(err) {
         let dll = loaddll("HmOutputPane.dll");
         dll.dllFunc.Output(hidemaru.getCurrentWindowHandle(), err + "\r\n");
     }
+    static setUpdateInterval() {
+        UITemplate.idUpdateInterval = hidemaru.setInterval(UITemplate.updateRenderPane, 1000);
+    }
+    static clearUpdateInterval() {
+        hidemaru.clearInterval(UITemplate.idUpdateInterval);
+    }
     static openRenderPane() {
-        let objUrl = new URL(currentmacrodirectory() + "\\" + "RenderInput.html");
-        let idCallBack = hidemaru.getFunctionId(MyUITemplate.onHtmlButtonClick);
-        console.log(idCallBack + "\r\n");
+        let absoluteUrl = new URL(currentmacrodirectory() + "\\" + "RenderInput.html");
+        let idCallBack = hidemaru.getFunctionId(UITemplate.onHtmlButtonClick);
         let params = new URLSearchParams();
         params.set("strIDCallBack", String(idCallBack));
-        objUrl.search = params.toString();
+        absoluteUrl.search = new URLSearchParams(params).toString();
+        console.log(absoluteUrl.href);
         const json_arg = {
-            target: MyUITemplate.strTargetLabel,
-            uri: objUrl.href,
+            target: UITemplate.strTargetLabel,
+            uri: absoluteUrl.href,
             show: 1,
             place: "leftside",
+            size: 240,
             initialize: "async",
+        };
+        renderpanecommand(json_arg);
+    }
+    static closeRenderPane() {
+        const json_arg = {
+            target: UITemplate.strTargetLabel,
+            show: 0,
         };
         renderpanecommand(json_arg);
     }
     static checkCompleteRenderPane() {
         console.log("checkCompleteRenderPane");
         try {
-            let readyState = renderpanecommand({ target: MyUITemplate.strTargetLabel, get: "readyState" });
+            let readyState = renderpanecommand({ target: UITemplate.strTargetLabel, get: "readyState" });
             if (readyState == "complete") {
-                MyUITemplate.clearInterval();
-                console.log("complete");
-                MyUITemplate.onRenderPaneCompleted();
+                UITemplate.clearInitInterval();
+                UITemplate.onRenderPaneCompleted();
             }
         }
         catch (err) {
-            MyUITemplate.outputAlert(err);
+            UITemplate.outputAlert(err);
         }
     }
     static onRenderPaneCompleted() {
-        renderpanecommand({
-            target: MyUITemplate.strTargetLabel,
-            focus: 1,
-        });
+        console.log("onRenderPaneCompleted");
+        try {
+            renderpanecommand({
+                target: "RenderInputHtml",
+                focus: 1,
+            });
+        }
+        catch (err) {
+            UITemplate.outputAlert(err);
+        }
+    }
+    static isCloseRenderPane() {
+        let isShowNow = renderpanecommand({ target: UITemplate.strTargetLabel, get: "show" });
+        if (isShowNow == "0") { // 数値ではなく文字列なので注意...
+            return true; // クローズしてたらtrueを返す。
+        }
+        return false;
     }
 
+    static updateRenderPane() {
+        try {
+            if (UITemplate.isCloseRenderPane()) {
+                UITemplate.clearInitInterval();
+                UITemplate.clearUpdateInterval();
+            }
+        }
+        catch (err) {
+            UITemplate.outputAlert(err);
+        }
+    }
     static onHtmlButtonClick(json) {
         try {
-            MyUITemplate.clearInterval();
+            UITemplate.clearInitInterval();
+            UITemplate.clearUpdateInterval();
             renderpanecommand({
-                target: MyUITemplate.strTargetLabel,
+                target: "RenderInputHtml",
                 show: 0,
             });
             let strInputJson = json;
             console.log(json);
-            hidemaru.postExecMacroMemory("js {onMyPostExecute()}");
+            hidemaru.postExecMacroMemory("js {onPostExecute()}");
         }
         catch (err) {
-            MyUITemplate.outputAlert(err);
+            UITemplate.outputAlert(err);
         }
     }
 }
 try {
-    // let ではなく寿命が残るvarである必要がある。
-    var myUITemplate = new MyUITemplate();
+    var objUITemplate = new UITemplate(); // let ではなく寿命が残るvarである必要がある。
 }
 catch (err) {
-    if (typeof (myUITemplate) != "undefined") {
-        myUITemplate._destructor();
-    }
-}
-
-function onMyPostExecute() {
-     console.log("OK6");
+    objUITemplate?._destructor();
+    UITemplate.outputAlert(err);
 }
 
 
 } // js
 
-/* getFunctionIdを利用した場合、同一空間での２回目のjsmodeは 9.19～9.35までは許されない
+
 jsmode "WebView2";
 
 js {
     debuginfo(2);
     console.log(hidemaru.getJsMode());
 
-    function onMyPostExecute() {
+    function onPostExecute() {
          console.log("OK6");
     }
 }
-*/
