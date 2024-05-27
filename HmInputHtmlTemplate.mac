@@ -21,7 +21,7 @@ class MyUITemplate {
         MyUITemplate.clearInterval();
     }
     static setInterval() {
-        MyUITemplate.idInterval = hidemaru.setInterval(MyUITemplate.tickCheckComplete, 300);
+        MyUITemplate.idInterval = hidemaru.setInterval(MyUITemplate.tickCheckCompleteRenderPane, 300);
     }
     static clearInterval() {
         console.log("クリア");
@@ -47,21 +47,21 @@ class MyUITemplate {
         };
         renderpanecommand(json_arg);
     }
-    static tickCheckComplete() {
-        console.log("tickCheckComplete");
+    static tickCheckCompleteRenderPane() {
+        console.log("tickCheckCompleteRenderPane");
         try {
             let readyState = renderpanecommand({ target: MyUITemplate.strTargetLabel, get: "readyState" });
             if (readyState == "complete") {
                 MyUITemplate.clearInterval();
                 console.log("complete");
-                MyUITemplate.onRenderPaneShown();
+                MyUITemplate.onRenderPaneCompleted();
             }
         }
         catch (err) {
             MyUITemplate.outputAlert(err);
         }
     }
-    static onRenderPaneShown() {
+    static onRenderPaneCompleted() {
         renderpanecommand({
             target: MyUITemplate.strTargetLabel,
             focus: 1,
