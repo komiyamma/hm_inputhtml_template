@@ -4,93 +4,68 @@
 jsmode "WebView2";
 
 js {
+
 debuginfo(2);
 console.log(hidemaru.getJsMode());
-
-if (typeof(myUITemplate) != "undefined") {
+if (typeof (myUITemplate) != "undefined") {
     myUITemplate._destructor();
 }
-
-class MyUITemplate { // ここのクラス名はマクロファイル名ごとに書き換える
-
+class MyUITemplate {
     static strTargetLabel = "RenderInputHtml";
-
+    static idInterval;
     constructor() {
-        debuginfo(2);
-
         MyUITemplate.openRenderPane();
         MyUITemplate.setInterval();
     }
-
     _destructor() {
-        MyUITemplate.clearInterval(MyUITemplate.idInterval);
+        MyUITemplate.clearInterval();
     }
-
     static setInterval() {
         MyUITemplate.idInterval = hidemaru.setInterval(MyUITemplate.tickCheckComplete, 300);
     }
-
     static clearInterval() {
         console.log("クリア");
         hidemaru.clearInterval(MyUITemplate.idInterval);
     }
-
     static outputAlert(err) {
         let dll = loaddll("HmOutputPane.dll");
         dll.dllFunc.Output(hidemaru.getCurrentWindowHandle(), err + "\r\n");
     }
-
     static openRenderPane() {
-        try {
-        let absoluteUrl = new URL(currentmacrodirectory() + "\\" + "RenderInput.html");
+        let objUrl = new URL(currentmacrodirectory() + "\\" + "RenderInput.html");
         let idCallBack = hidemaru.getFunctionId(MyUITemplate.onHtmlButtonClick);
         console.log(idCallBack + "\r\n");
-        let params = {
-          strIDCallBack: idCallBack,
-        };
-        absoluteUrl.search = new URLSearchParams(params).toString();
-
-        console.log(absoluteUrl.href);
-
+        let params = new URLSearchParams();
+        params.set("strIDCallBack", String(idCallBack));
+        objUrl.search = params.toString();
         const json_arg = {
             target: MyUITemplate.strTargetLabel,
-            uri: absoluteUrl,
+            uri: objUrl.href,
             show: 1,
             place: "leftside",
+            initialize: "async",
         };
-        
         renderpanecommand(json_arg);
-        } catch(err) {
-            MyUITemplate.outputAlert(err);
-        }
     }
-
     static tickCheckComplete() {
         console.log("tickCheckComplete");
         try {
-        let readyState = renderpanecommand({ target: MyUITemplate.strTargetLabel, get: "readyState" });
-        if (readyState == "complete") {
-            MyUITemplate.clearInterval();
-            console.log("complete");
-            MyUITemplate.onRenderPaneShown();
+            let readyState = renderpanecommand({ target: MyUITemplate.strTargetLabel, get: "readyState" });
+            if (readyState == "complete") {
+                MyUITemplate.clearInterval();
+                console.log("complete");
+                MyUITemplate.onRenderPaneShown();
+            }
         }
-        } catch(err) {
+        catch (err) {
             MyUITemplate.outputAlert(err);
         }
     }
-
     static onRenderPaneShown() {
-        console.log("onRenderPaneShown");
-        try {
-
         renderpanecommand({
             target: MyUITemplate.strTargetLabel,
             focus: 1,
         });
-
-        } catch(err) {
-            MyUITemplate.outputAlert(err);
-        }
     }
 
     static onHtmlButtonClick(json) {
@@ -102,34 +77,38 @@ class MyUITemplate { // ここのクラス名はマクロファイル名ごと�
             });
             let strInputJson = json;
             console.log(json);
-            hidemaru.postExecMacroMemory( "js {onPostExecute()}" );
-        } catch(err) {
+            hidemaru.postExecMacroMemory("js {onMyPostExecute()}");
+        }
+        catch (err) {
             MyUITemplate.outputAlert(err);
         }
     }
 }
-
-
-
 try {
     // let ではなく寿命が残るvarである必要がある。
     var myUITemplate = new MyUITemplate();
-} catch(err) {
-    if (typeof(myUITemplate) != "undefined") {
+}
+catch (err) {
+    if (typeof (myUITemplate) != "undefined") {
         myUITemplate._destructor();
     }
 }
 
+function onMyPostExecute() {
+     console.log("OK6");
+}
+
+
 } // js
 
-/* この２回目のjsmodeは 9.35までは許されない
+/* getFunctionIdを利用した場合、同一空間での２回目のjsmodeは 9.19～9.35までは許されない
 jsmode "WebView2";
 
 js {
     debuginfo(2);
     console.log(hidemaru.getJsMode());
 
-    function onPostExecute() {
+    function onMyPostExecute() {
          console.log("OK6");
     }
 }
