@@ -1,0 +1,75 @@
+﻿hidemaruversion "9.25.99";
+
+
+jsmode "WebView2";
+
+js {
+    debuginfo(2);
+    if (typeof (idInterval_MyUITemplate) != "undefined") {
+        console.log("クリア");
+        hidemaru.clearInterval(idInterval_MyUITemplate);
+    }
+
+    class MyUITemplate { // ここのクラス名はマクロファイル名ごとに書き換える
+
+        constructor() {
+            MyUITemplate.openRenderPane();
+        }
+
+        static outputAlert(err) {
+            let dll = loaddll("HmOutputPane.dll");
+            dll.dllFunc.Output(hidemaru.getCurrentWindowHandle(), err + "\r\n");
+        }
+
+        static openRenderPane() {
+            let idCallBack = hidemaru.getFunctionId(MyUITemplate.onHtmlButtonClick);
+            let absoluteUrl = new URL(currentmacrodirectory() + "\\" + "RenderInput.html").href;
+            absoluteUrl = absoluteUrl + "?strIDCallBack=" + idCallBack;
+            const json_arg = {
+                target: "RenderInputHtml",
+                uri: absoluteUrl,
+                show: 1,
+            };
+
+            renderpanecommand(json_arg);
+            console.log("URLをrendercommand");
+        }
+
+        static checkComplete() {
+            try {
+                let readyState = renderpanecommand({ target: "RenderInputHtml", get: "readyState" });
+                if (readyState == "complete") {
+                    hidemaru.clearInterval(idInterval_MyUITemplate);
+                    console.log("URLをcomplete");
+                } else {
+                    console.log("URLはimcomplete");
+                }
+            } catch (err) {
+                MyUITemplate.outputAlert(err);
+            }
+        }
+
+        static onHtmlButtonClick(json) {
+            console.log("onHtmlButtonClick\r\n");
+        }
+    }
+
+
+
+    try {
+        var myUITemplate = new MyUITemplate(); // let ではなく寿命が残るvarである必要がある。
+        idInterval_MyUITemplate = hidemaru.setInterval(MyUITemplate.checkComplete, 300);
+    } catch (err) {
+        console.log(err);
+    }
+
+} // js
+
+
+jsmode "WebView2";
+
+js {
+    function onPostExecute() {
+        console.log("OK6");
+    }
+}
