@@ -5,12 +5,7 @@ jsmode "WebView2";
 
 js {
 
-
-// 2日目以降の同一マクロの実行に対応するため。
-if (typeof(objUITemplate) != "undefined") {
-    objUITemplate?._destructor();
-}
-
+objUITemplate?._destructor();
 class UITemplate { // ここのクラス名はマクロファイル名ごとに書き換える
     static strTargetLabel = "";
     static idInitInterval;
@@ -24,6 +19,11 @@ class UITemplate { // ここのクラス名はマクロファイル名ごとに�
     }
 
     _destructor() {
+        UITemplate.clearInitInterval();
+        UITemplate.clearUpdateInterval();
+    }
+
+    static clearAllInterval() {
         UITemplate.clearInitInterval();
         UITemplate.clearUpdateInterval();
     }
@@ -98,7 +98,7 @@ class UITemplate { // ここのクラス名はマクロファイル名ごとに�
         console.log("onRenderPaneCompleted");
         try {
             renderpanecommand({
-                target: "RenderInputHtml",
+                target: UITemplate.strTargetLabel,
                 focus: 1,
             });
         } catch (err) {
@@ -110,8 +110,7 @@ class UITemplate { // ここのクラス名はマクロファイル名ごとに�
         try {
             let isShowNow = renderpanecommand({ target: UITemplate.strTargetLabel, get: "show" });
             if (isShowNow == "0") { // 数値ではなく文字列なので注意...
-                UITemplate.clearInitInterval();
-                UITemplate.clearUpdateInterval();
+                UITemplate.clearAllInterval();
                 console.log("レンダーペインが閉じられました。")
             }
         } catch (err) {
@@ -121,10 +120,9 @@ class UITemplate { // ここのクラス名はマクロファイル名ごとに�
 
     static onHtmlButtonClick(json_obj) {
         try {
-            UITemplate.clearInitInterval();
-            UITemplate.clearUpdateInterval();
+            UITemplate.clearAllInterval();
             renderpanecommand({
-                target: "RenderInputHtml",
+                target: UITemplate.strTargetLabel,
                 show: 0,
             });
             let json_text = JSON.stringify(json_obj);
@@ -138,9 +136,7 @@ class UITemplate { // ここのクラス名はマクロファイル名ごとに�
 try {
     var objUITemplate = new UITemplate(); // let ではなく寿命が残るvarである必要がある。
 } catch (err) {
-    if (typeof(objUITemplate) != "undefined") {
-        objUITemplate?._destructor();
-    }
+    objUITemplate?._destructor();
     UITemplate.outputAlert(err);
 }
 
