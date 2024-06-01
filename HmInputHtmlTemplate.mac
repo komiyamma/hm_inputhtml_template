@@ -4,7 +4,6 @@
 jsmode "WebView2";
 
 js {
-
 objUITemplate?._destructor();
 class UITemplate { // ここのクラス名はマクロファイル名ごとに書き換える
     static strTargetLabel = "";
@@ -29,7 +28,7 @@ class UITemplate { // ここのクラス名はマクロファイル名ごとに�
     }
 
     static setInitInterval() {
-        UITemplate.idInitInterval = hidemaru.setInterval(UITemplate.checkCompleteRenderPane, 300);
+        UITemplate.idInitInterval = hidemaru.setInterval(UITemplate.checkCompleteRenderPane, 500);
     }
 
     static clearInitInterval() {
@@ -82,7 +81,6 @@ class UITemplate { // ここのクラス名はマクロファイル名ごとに�
     }
 
     static checkCompleteRenderPane() {
-        console.log("checkCompleteRenderPane");
         try {
             let readyState = renderpanecommand({ target: UITemplate.strTargetLabel, get: "readyState" });
             if (readyState == "complete") {
@@ -95,7 +93,6 @@ class UITemplate { // ここのクラス名はマクロファイル名ごとに�
     }
 
     static onRenderPaneCompleted() {
-        console.log("onRenderPaneCompleted");
         try {
             renderpanecommand({
                 target: UITemplate.strTargetLabel,
@@ -111,7 +108,6 @@ class UITemplate { // ここのクラス名はマクロファイル名ごとに�
             let isShowNow = renderpanecommand({ target: UITemplate.strTargetLabel, get: "show" });
             if (isShowNow == "0") { // 数値ではなく文字列なので注意...
                 UITemplate.clearAllInterval();
-                console.log("レンダーペインが閉じられました。")
             }
         } catch (err) {
             UITemplate.outputAlert(err);
