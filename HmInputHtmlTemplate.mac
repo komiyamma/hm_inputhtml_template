@@ -1,4 +1,7 @@
-﻿hidemaruversion "9.25.99";
+﻿// CC0 1.0 Universal
+
+
+hidemaruversion "9.25.99";
 
 
 jsmode "WebView2";
