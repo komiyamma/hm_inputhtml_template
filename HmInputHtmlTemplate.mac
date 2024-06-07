@@ -125,13 +125,21 @@ class UITemplate { // ここのクラス名はマクロファイル名ごとに�
                 show: 0,
             });
             let json_text = JSON.stringify(json_obj);
-            hidemaru.postExecMacroMemory("js {onPostExecute(" + json_text + ")}");
+
+            let peRetry = hidemaru.setInterval(()=>{
+                if (hidemaru.isScheduled?.()) return; 
+                let success = hidemaru.postExecMacroMemory("js {onPostExecute(" + json_text + ")}");
+                if (success === 0) return; // 再挑戦
+                hidemaru.clearInterval(peRetry);
+                console.log("OK");
+            }, 100);
         } catch (err) {
             UITemplate.outputAlert(err);
         }
     }
 }
 
+debuginfo(2);
 try {
     var objUITemplate = new UITemplate(); // let ではなく寿命が残るvarである必要がある。
 } catch (err) {
