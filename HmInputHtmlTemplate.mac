@@ -131,7 +131,6 @@ class UITemplate { // ここのクラス名はマクロファイル名ごとに�
                 let success = hidemaru.postExecMacroMemory("js {onPostExecute(" + json_text + ")}");
                 if (success === 0) return; // 再挑戦
                 hidemaru.clearInterval(peRetry);
-                console.log("OK");
             }, 100);
         } catch (err) {
             UITemplate.outputAlert(err);
