@@ -128,8 +128,8 @@ class UITemplate { // ここのクラス名はマクロファイル名ごとに�
 
             let peRetry = hidemaru.setInterval(()=>{
                 if (hidemaru.isScheduled?.()) return; 
-                let success = hidemaru.postExecMacroMemory("js {onPostExecute(" + json_text + ")}");
-                if (success === 0) return; // 再挑戦
+                let isScheduled = hidemaru.postExecMacroMemory("js {onPostExecute(" + json_text + ")}");
+                if (isScheduled === 0) return; // 再挑戦
                 hidemaru.clearInterval(peRetry);
             }, 100);
         } catch (err) {
